@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.10.18)  4 OCT 2021 21:49
+This is XeTeX, Version 3.14159265-2.6-0.999992 (TeX Live 2020/W32TeX) (preloaded format=xelatex 2020.10.18)  15 OCT 2021 22:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1006,24 +1006,36 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 98.
 (d:/latex/texlive/2020/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-
-LaTeX Font Warning: Font shape `TU/SimSun(0)/b/it' undefined
-(Font)              using `TU/SimSun(0)/b/n' instead on input line 111.
+Overfull \hbox (20.87547pt too wide) in paragraph at lines 102--102
+[]\TU/lmr/bx/n/14.4 Unsupervised Learning of Probably Symmetric Deformable
+ []
 
 [1
 
-] [2] (./face_reconstruction.aux)
+]
+
+LaTeX Font Warning: Font shape `TU/SimSun(0)/b/it' undefined
+(Font)              using `TU/SimSun(0)/b/n' instead on input line 144.
+
+[2] [3]
+Overfull \hbox (30.70679pt too wide) in paragraph at lines 197--198
+[]\TU/lmr/m/n/12 1\TU/SimSun(0)/m/n/12 、| \TU/lmr/m/n/12 Aggregation Network: \
+TU/SimSun(0)/m/n/12 首 先 对 不 同 的 输 入 图 片 进 行 估 计 \TU/lmr/m/n/12 depth,albedo,pos
+e,lighting,
+ []
+
+[4] (./face_reconstruction.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 22501 strings out of 479418
- 486485 string characters out of 5885464
- 857071 words of memory out of 5000000
- 39617 multiletter control sequences out of 15000+600000
- 535121 words of font info for 58 fonts, out of 8000000 for 9000
+ 22554 strings out of 479418
+ 488254 string characters out of 5885464
+ 860071 words of memory out of 5000000
+ 39659 multiletter control sequences out of 15000+600000
+ 539782 words of font info for 78 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
  64i,6n,102p,650b,245s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on face_reconstruction.pdf (2 pages).
+Output written on face_reconstruction.pdf (4 pages).

@@ -96,7 +96,40 @@
 \author{Xinyuan}
 %\date{} % 若不需要自动插入日期，则去掉前面的注释；{ } 中也可以自定义日期格式
 \maketitle
-\section{多视角}
+\section{单视角 Model Base}
+\subsection{3DDFA}
+\section{单视角 Model Free}
+\subsection{Unsupervised Learning of Probably Symmetric Deformable 3D Objects from Images in the Wild}
+本文精彩之处在于利用人脸等三维物体的对称性进行三维估计。
+我认为作者的初衷是认为脱离了人脸几何先验（33DMM）之后，需要对不同的样本找到对齐的方式（\textbf{特别是对于无监督的方法，如果需要用到神经网络统计的方式对输入图片进行分析，需要引入一定的先验信息，为不同的样本找到一致性。这一点也可以在监督的网络里面由gt引入。}）作者本着为不同样本找到一致性的对齐方式的原则，希望可以重建出正面'canonical view'的结果，故而引入对称性这一种先验信息。
+
+
+1、基本信息预估正面视角结果，包括depth,albedo,viewpoint,lighting，且用不同的网络结构分别估计。
+
+注：在一般的实验中，albedo和lighting往往混合在一起，如果将albedo假设为对称的，则albedo的不对称性可以通过lighting引起，从而将两个分离开来。除此之外，还应该将shadeing 和shape分开估计，shading 不代表完全的shape，可能也混有lighting 的信息。
+
+2、对称性的利用以及loss的设计：在本文中为约束对称性，显示将预估得到的depth,albedo进行水平翻转。通过渲染投影将得到的结果和水平翻转过的结果重投影回输入图片的视角，计算重投影误差。
+$$
+L = \dfrac{1}{Z}\sum_{uv}ln\dfrac{exp(-\frac{\sqrt{2}l_{uv}}{\delta_{uv} })}{\delta_{uv}}
+$$
+
+这里Z是归一化因子，LOSS计算对水平翻转和未水平翻转过的结果计算两次，所以$l_uv$分别表示两次计算的结果，除此之外，$\delta_{uv}$在不同的计算中也有不同的意思，在正常的估计结果中，表示输入图片信息对正面视角预估出来的结果的置信度。在翻转的结果中，表示预估的部分是否是对称的置信度。loss还包括perceptual loss，同样也对翻转和未翻转的结果进行计算。
+
+
+3、一些小细节：
+\begin{itemize}
+	\item 网络在估计depth和albedo的时候，用到了encoder和decoder结构，但是并没有用到常用的skip方法，是因为输入图片和输出结果并不是对齐的。这一点在后面论文中有其他的解决办法。
+	\item 对于深度的尺度不一致问题,作者对预估出来的深度先进行归一化处理，归一化之后再通过tanh激活函数，再对估计得到的深度进行缩放到统一的尺度上。
+\end{itemize}
+	
+	
+
+	
+
+
+
+
+\section{多视角 Model Base}
 \subsection{Deep Facial Non-Rigid Multi-View Stereo}
 
 
@@ -147,4 +180,48 @@
 	\textbf{对于target视角中，三维P点可见，则包含P点的所有三角面片，在source视角中同样可见。}
 	
 5、实验结果：重建细节不明显，大尺度人脸对齐效果优于单视角，三维误差：1.55mm（BU3DFE）
+
+\section{多视角 Model Free}
+
+\subsection{Learning to Aggregate and Personalize 3D Face from In-the-Wild Photo Collection}
+
+该论文可以看作是Unsuper3d 的多视角版本，同样估计“正面视角”的结果。所以该论文重点在于如何融合多视角信息。
+主要分为两个步骤：
+
+STEP1:预估出人脸基础的几何结构和有身份特征的texture;
+
+STEP2:对预估出的结果进行微调，包括表情，几何细节等。
+对于多视角信息融合的点在于：
+
+
+1、Aggregation Network:首先对不同的输入图片进行估计depth,albedo,pose,lighting,对于每一个视角的depth 和albedo的encoder 结果$x_i^a$进行融合。利用adptive  aggregation的方法，强调encoder的结果的每一个特征维度对确定id的重要性是不一致的，故而对齐进行加权$w_i^a$求和。
+$$
+x_c^a = \sum_{i=1}^{N}w_i^a * x_i^a
+$$
+
+2、学习各个输入图片独特的特征：
+
+\begin{itemize}
+	\item 首先对多视角中每一张图片提取特征，与得到的有id信息的depth 和albedo进行对比。但由于不对齐的原因，没有办法进行直接的concat。故而只将input图片中比较低维的特征进行concat。
+	\item 除此之外还参考了人脸编辑中的方法，对输出的有特征点的图片应该有一部分和原有的结果一致，一部分和原有的不一致，例如表情等。所以提出attention mask结构。
+	$$
+	Mask = con(feature_e,feature_d) \\
+	feature_d = con(Mask*feature_e+feature_d)
+	$$
+	这里$feature_d$ 代表的是更加高分辨率的结果是从低分辨率的结果加上mask的encoder的结果的来的。
+\end{itemize}
+
+3、loss:
+loss 的设计同super3d，所以也需要估计置信度。还有一点训练技巧在预计id一致性的部分，有对不同区域的人脸进行加权。
+
+4、在训练方法上采用了curriculum learning ,也就是先在简单的数据集上进行训练，再迁移到复杂的数据集。这训练的主要难点在于wild的多视角数据集再光照，背景等方面都比较复杂，所以现在用GAN生成的较为简单的数据集上进行训练。GAN生成的数据集人脸识别ARCFACE，loss在0.6以下即可。
+
+
+5、一些思考
+
+文章主要有启发性的地方在于多视角信息的利用上面，以及在网络结构的设计上要注意对齐问题。感觉在训练的技巧上比较多，值得积累。
+
+
+
+
 \end{document}
